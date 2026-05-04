@@ -106,3 +106,45 @@ document.addEventListener('DOMContentLoaded', () => {
     proofTrack.innerHTML += proofTrack.innerHTML;
   }
 });
+
+// --- INTERACTIVE BOAT MAP DATA ---
+const boatServices = {
+  'bund': {
+    label: 'Bundmaling',
+    price: 'Fra 6.500 DKK',
+    desc: 'Professionel afrensning og påføring af miljøvenlig bundmaling. Alt materialer inkluderet.'
+  },
+  'skrog': {
+    label: 'Udvendig Rengøring + Voks',
+    price: 'Fra 1.800 DKK',
+    desc: 'Skrog og gelcoat vaskes, poleres og beskyttes med premium marine-voks.'
+  },
+  'kahyt': {
+    label: 'Indvendig Rengøring',
+    price: 'Fra 1.200 DKK',
+    desc: 'Komplet rengøring af kahyt, salon, pantry og hoveder. Vi efterlader din båd renere end ny.'
+  },
+  'daek': {
+    label: 'Polering & Dæk',
+    price: 'Fra 3.200 DKK',
+    desc: 'Flertrins maskinpolering der fjerner oxidering og genskaber glansen i din gelcoat på dækket.'
+  }
+};
+
+window.showBoatInfo = function(key) {
+  const panel = document.getElementById('boat-info-panel');
+  const data = boatServices[key];
+  if (panel && data) {
+    document.getElementById('bip-label').textContent = data.label;
+    document.getElementById('bip-price').textContent = data.price;
+    document.getElementById('bip-desc').textContent = data.desc;
+    panel.classList.add('active');
+  }
+};
+
+window.closeBoatInfo = function() {
+  const panel = document.getElementById('boat-info-panel');
+  if (panel) {
+    panel.classList.remove('active');
+  }
+};
