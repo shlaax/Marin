@@ -3,565 +3,461 @@
   if (!container) return;
 
   const SECTIONS = {
-    bottom: {
-      label: 'Bundmaling',
-      price: 'Fra 6.500 DKK',
-      desc: 'Professionel afrensning og påføring af miljøvenlig bundmaling. Alt materialer inkluderet. Vi sikrer korrekt lagstykkelse og en glat finish.'
-    },
-    hull: {
-      label: 'Udvendig Rengøring',
-      price: 'Fra 1.800 DKK',
-      desc: 'Skrog, dæk og gelcoat vaskes, poleres og beskyttes med premium marine-voks. Fuldstændig rengøring over vandlinjen.'
-    },
-    deck: {
-      label: 'Polering & Dæk',
-      price: 'Fra 3.200 DKK',
-      desc: 'Flertrins maskinpolering der fjerner oxidering og genskaber glansen i din gelcoat. Inkluderer keramisk coating som ekstra tilkøb.'
-    },
-    cabin: {
-      label: 'Indvendig Rengøring',
-      price: 'Fra 1.200 DKK',
-      desc: 'Komplet rengøring af kahyt, salon, pantry og hoveder. Vi efterlader din båd renere end ny — inkl. polstring, messing og stål.'
-    }
+    bottom: { label: 'Bundmaling',        price: 'Fra 6.500 DKK', desc: 'Professionel afrensning og påføring af miljøvenlig bundmaling. Alt materialer inkluderet.' },
+    hull:   { label: 'Udvendig Rengøring',price: 'Fra 1.800 DKK', desc: 'Skrog og gelcoat vaskes, poleres og beskyttes med premium marine-voks.' },
+    deck:   { label: 'Polering & Dæk',   price: 'Fra 3.200 DKK', desc: 'Maskinpolering der fjerner oxidering og genskaber glansen i din gelcoat.' },
+    cabin:  { label: 'Indvendig Rengøring',price:'Fra 1.200 DKK', desc: 'Komplet rengøring af kahyt, salon, pantry og hoveder.' }
   };
 
-  // ── SCENE ──────────────────────────────────────────────────────────────
-  const scene = new THREE.Scene();
+  // ── SCENE ─────────────────────────────────────────────────────────────
+  const scene    = new THREE.Scene();
   scene.background = new THREE.Color(0x04080f);
-  scene.fog = new THREE.FogExp2(0x04080f, 0.028);
+  scene.fog        = new THREE.FogExp2(0x04080f, 0.025);
 
   const W = container.clientWidth, H = container.clientHeight;
-  const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 200);
-  camera.position.set(9, 5.5, 11);
-  camera.lookAt(0, 1.2, 0);
+  const camera = new THREE.PerspectiveCamera(36, W / H, 0.1, 200);
+  camera.position.set(10, 6, 12);
+  camera.lookAt(0, 0.8, 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(W, H);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+  renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
   container.appendChild(renderer.domElement);
 
-  // ── LIGHTS ─────────────────────────────────────────────────────────────
-  scene.add(new THREE.AmbientLight(0x1a3a5c, 2.0));
-
-  const sun = new THREE.DirectionalLight(0xfff4e0, 3.0);
-  sun.position.set(6, 12, 5);
+  // ── LIGHTS ────────────────────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0x1a3a60, 2.5));
+  const sun = new THREE.DirectionalLight(0xfff0d8, 3.5);
+  sun.position.set(6, 14, 5);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 50;
-  sun.shadow.camera.left = -10;
-  sun.shadow.camera.right = 10;
-  sun.shadow.camera.top = 8;
-  sun.shadow.camera.bottom = -8;
+  sun.shadow.camera.near = 1; sun.shadow.camera.far = 60;
+  sun.shadow.camera.left = -10; sun.shadow.camera.right = 10;
+  sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
   scene.add(sun);
-
-  const sky = new THREE.DirectionalLight(0x4477bb, 1.0);
-  sky.position.set(-4, 6, -6);
-  scene.add(sky);
-
-  const rim = new THREE.DirectionalLight(0x88bbdd, 0.5);
-  rim.position.set(0, -3, -8);
+  const fill = new THREE.DirectionalLight(0x4488bb, 1.2);
+  fill.position.set(-5, 5, -6);
+  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0x88bbee, 0.6);
+  rim.position.set(0, -4, -10);
   scene.add(rim);
 
-  // ── MATERIALS ──────────────────────────────────────────────────────────
-  const matBottom = new THREE.MeshStandardMaterial({
-    color: 0x1a4f7a, roughness: 0.45, metalness: 0.15
-  });
-  const matHull = new THREE.MeshStandardMaterial({
-    color: 0xEFEDE3, roughness: 0.12, metalness: 0.04
-  });
-  const matDeck = new THREE.MeshStandardMaterial({
-    color: 0x7a5530, roughness: 0.85, metalness: 0.0
-  });
-  const matDeckLight = new THREE.MeshStandardMaterial({
-    color: 0xd4b896, roughness: 0.9, metalness: 0.0
-  });
-  const matCabin = new THREE.MeshStandardMaterial({
-    color: 0x0c3356, roughness: 0.25, metalness: 0.15
-  });
-  const matGlass = new THREE.MeshPhysicalMaterial({
-    color: 0x99bbdd, roughness: 0.0, metalness: 0.05,
-    transparent: true, opacity: 0.35, side: THREE.DoubleSide
-  });
-  const matChrome = new THREE.MeshStandardMaterial({
-    color: 0xcccccc, roughness: 0.1, metalness: 0.95
-  });
-  const matGold = new THREE.MeshStandardMaterial({
-    color: 0xC9A84C, roughness: 0.2, metalness: 0.8
-  });
-  const matRubber = new THREE.MeshStandardMaterial({
-    color: 0x111111, roughness: 0.9, metalness: 0.0
-  });
-  const matCockpit = new THREE.MeshStandardMaterial({
-    color: 0x0d1520, roughness: 0.95, metalness: 0.0
-  });
+  // ── MATERIALS ─────────────────────────────────────────────────────────
+  const M = {
+    bottom : new THREE.MeshStandardMaterial({ color: 0x1b5280, roughness: 0.50, metalness: 0.10 }),
+    hull   : new THREE.MeshStandardMaterial({ color: 0xEFECE1, roughness: 0.12, metalness: 0.03 }),
+    deck   : new THREE.MeshStandardMaterial({ color: 0x7b5432, roughness: 0.88 }),
+    deckL  : new THREE.MeshStandardMaterial({ color: 0xcfaa7a, roughness: 0.90 }),
+    cabin  : new THREE.MeshStandardMaterial({ color: 0x0c3356, roughness: 0.28, metalness: 0.12 }),
+    glass  : new THREE.MeshPhysicalMaterial({ color: 0x99bbdd, roughness: 0.0, transparent: true, opacity: 0.35, side: THREE.DoubleSide }),
+    chrome : new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.08, metalness: 0.95 }),
+    gold   : new THREE.MeshStandardMaterial({ color: 0xC9A84C, roughness: 0.20, metalness: 0.80 }),
+    rubber : new THREE.MeshStandardMaterial({ color: 0x181818, roughness: 0.95 }),
+    dark   : new THREE.MeshStandardMaterial({ color: 0x0c1520, roughness: 0.95 }),
+  };
 
-  // ── BOAT GROUP ─────────────────────────────────────────────────────────
-  const boatGroup = new THREE.Group();
-  scene.add(boatGroup);
+  // ── HULL GEOMETRY FROM CROSS-SECTIONS ─────────────────────────────────
+  // Each station: x = position along boat (bow +, stern -)
+  // profile = half-section points from keel (z≈0) outward to sheer (z=max)
+  // {y = height, z = half-beam}
+  const STATIONS = [
+    { x: 4.50, profile:[{y:.18,z:.001},{y:.22,z:.04},{y:.32,z:.07},{y:.46,z:.09},{y:.60,z:.11}] },
+    { x: 4.00, profile:[{y:-.10,z:.001},{y:-.02,z:.14},{y:.12,z:.24},{y:.36,z:.32},{y:.56,z:.36}] },
+    { x: 3.20, profile:[{y:-.48,z:.001},{y:-.32,z:.40},{y:-.05,z:.62},{y:.24,z:.74},{y:.54,z:.80}] },
+    { x: 2.20, profile:[{y:-.78,z:.001},{y:-.57,z:.68},{y:-.20,z:.96},{y:.14,z:1.10},{y:.50,z:1.18}] },
+    { x: 1.00, profile:[{y:-.86,z:.001},{y:-.64,z:.78},{y:-.27,z:1.05},{y:.07,z:1.22},{y:.48,z:1.30}] },
+    { x:  .00, profile:[{y:-.90,z:.001},{y:-.68,z:.82},{y:-.30,z:1.10},{y:.05,z:1.26},{y:.46,z:1.33}] },
+    { x:-1.00, profile:[{y:-.88,z:.001},{y:-.66,z:.80},{y:-.28,z:1.07},{y:.06,z:1.22},{y:.44,z:1.28}] },
+    { x:-2.00, profile:[{y:-.84,z:.001},{y:-.62,z:.77},{y:-.24,z:1.03},{y:.06,z:1.17},{y:.42,z:1.23}] },
+    { x:-3.00, profile:[{y:-.79,z:.001},{y:-.57,z:.73},{y:-.19,z:.98},{y:.07,z:1.11},{y:.40,z:1.17}] },
+    { x:-3.65, profile:[{y:-.73,z:.001},{y:-.51,z:.69},{y:-.14,z:.92},{y:.08,z:1.05},{y:.38,z:1.12}] },
+  ];
 
-  const meshKeys = new Map();
-  const originalPos = new Map();
+  function lerp(a, b, t) { return a + t * (b - a); }
 
-  function addPart(mesh, key, shadow = true) {
-    mesh.castShadow = shadow;
-    mesh.receiveShadow = shadow;
-    boatGroup.add(mesh);
-    meshKeys.set(mesh, key);
-    originalPos.set(mesh, mesh.position.clone());
+  // Interpolate profile at y = target (for waterline split)
+  function addWLPoint(profile, WL) {
+    const out = [];
+    for (let i = 0; i < profile.length; i++) {
+      const p = profile[i], prev = profile[i - 1];
+      if (i > 0 && ((prev.y < WL && p.y >= WL) || (prev.y >= WL && p.y < WL))) {
+        const t = (WL - prev.y) / (p.y - prev.y);
+        out.push({ y: WL, z: lerp(prev.z, p.z, t) });
+      }
+      out.push(p);
+    }
+    return out;
   }
 
-  // ── HULL LOWER — BUNDMALING ────────────────────────────────────────────
-  // Below-waterline body using a tapered half-hull approach
-  // Main keel body
-  const hullBotMain = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.52, 0.13, 8.0, 18, 1),
-    matBottom
-  );
-  hullBotMain.rotation.z = Math.PI / 2;
-  hullBotMain.position.set(0, -0.52, 0);
-  hullBotMain.scale.z = 0.52;
-  addPart(hullBotMain, 'bottom');
+  // Resample profile to exactly N points
+  function resample(pts, N) {
+    if (pts.length === 0) return [];
+    if (pts.length === 1) return Array.from({length: N}, () => ({...pts[0]}));
+    const res = [];
+    for (let i = 0; i < N; i++) {
+      const t   = (i / (N - 1)) * (pts.length - 1);
+      const lo  = Math.floor(t), hi = Math.min(lo + 1, pts.length - 1);
+      const f   = t - lo;
+      res.push({ y: lerp(pts[lo].y, pts[hi].y, f), z: lerp(pts[lo].z, pts[hi].z, f) });
+    }
+    return res;
+  }
 
-  // Keel fin
-  const keelFin = new THREE.Mesh(
-    new THREE.BoxGeometry(6.5, 0.28, 0.07),
-    matBottom
-  );
-  keelFin.position.set(-0.2, -0.88, 0);
-  addPart(keelFin, 'bottom');
+  // Split stations at waterline and resample both halves
+  const WL = 0;
+  const splitSt = STATIONS.map(st => {
+    const full = addWLPoint(st.profile, WL);
+    const below = resample(full.filter(p => p.y <= WL + 0.001), 5);
+    const above = resample(full.filter(p => p.y >= WL - 0.001), 4);
+    return { x: st.x, below, above };
+  });
 
-  // Bow underwater extension
-  const bowUnder = new THREE.Mesh(
-    new THREE.ConeGeometry(0.52, 1.6, 18),
-    matBottom
-  );
-  bowUnder.rotation.z = -Math.PI / 2;
-  bowUnder.position.set(4.4, -0.52, 0);
-  bowUnder.scale.z = 0.52;
-  addPart(bowUnder, 'bottom');
+  // Build surface geometry from station profiles (port + starboard)
+  function buildSurface(stations, key) { // key: 'below'|'above'
+    const verts = [], idx = [];
+    function addQuad(a, b, c, d, flip) {
+      const base = verts.length / 3;
+      verts.push(...a, ...b, ...c, ...d);
+      if (!flip) idx.push(base,base+1,base+2, base,base+2,base+3);
+      else        idx.push(base,base+2,base+1, base,base+3,base+2);
+    }
+    for (let s = 0; s < stations.length - 1; s++) {
+      const P0 = stations[s][key], P1 = stations[s+1][key];
+      if (!P0 || !P1 || P0.length < 2 || P1.length < 2) continue;
+      const n = Math.min(P0.length, P1.length);
+      for (let i = 0; i < n - 1; i++) {
+        // port side +z
+        addQuad(
+          [stations[s].x,   P0[i].y,   P0[i].z],
+          [stations[s+1].x, P1[i].y,   P1[i].z],
+          [stations[s+1].x, P1[i+1].y, P1[i+1].z],
+          [stations[s].x,   P0[i+1].y, P0[i+1].z],
+          false
+        );
+        // starboard -z (reversed winding)
+        addQuad(
+          [stations[s].x,   P0[i].y,   -P0[i].z],
+          [stations[s+1].x, P1[i].y,   -P1[i].z],
+          [stations[s+1].x, P1[i+1].y, -P1[i+1].z],
+          [stations[s].x,   P0[i+1].y, -P0[i+1].z],
+          true
+        );
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  // Build flat transom panel
+  function buildTransom(st, key) {
+    const prof = st[key]; if (!prof || prof.length < 2) return null;
+    const x = st.x, verts = [], idx = [];
+    for (let i = 0; i < prof.length - 1; i++) {
+      const b = verts.length / 3;
+      verts.push(x,prof[0].y,0, x,prof[i].y,prof[i].z, x,prof[i+1].y,prof[i+1].z);
+      idx.push(b,b+1,b+2);
+      verts.push(x,prof[0].y,0, x,prof[i].y,-prof[i].z, x,prof[i+1].y,-prof[i+1].z);
+      const b2 = verts.length/3-3; idx.push(b2,b2+2,b2+1);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx); geo.computeVertexNormals();
+    return geo;
+  }
+
+  // Deck outline using THREE.Shape (top-down XZ, then rotated)
+  function buildDeckGeo() {
+    const shape = new THREE.Shape();
+    // Outline: bow → port sheer → stern → starboard sheer → bow
+    const pts = [
+      [4.45,  0.00], [4.00,  0.10], [3.20,  0.55],
+      [2.20,  0.95], [1.00,  1.16], [0.00,  1.22],
+      [-1.00, 1.18], [-2.00, 1.14], [-3.00, 1.10],
+      [-3.65, 1.05],// stern port
+      [-3.65,-1.05],// stern starboard
+      [-3.00,-1.10], [-2.00,-1.14], [-1.00,-1.18],
+      [0.00, -1.22], [1.00,-1.16], [2.20,-0.95],
+      [3.20, -0.55], [4.00,-0.10],
+    ];
+    shape.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => shape.lineTo(p[0], p[1]));
+    shape.closePath();
+    const geo = new THREE.ShapeGeometry(shape, 2);
+    // Rotate so XY plane → XZ (lying flat)
+    geo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    return geo;
+  }
+
+  // ── BOAT GROUP ────────────────────────────────────────────────────────
+  const boatGroup = new THREE.Group();
+  scene.add(boatGroup);
+  const meshKeys = new Map(), origPos = new Map();
+
+  function add(mesh, key) {
+    mesh.castShadow = mesh.receiveShadow = true;
+    boatGroup.add(mesh);
+    meshKeys.set(mesh, key);
+    origPos.set(mesh, mesh.position.clone());
+  }
+
+  // ── HULL BOTTOM (bundmaling) ──────────────────────────────────────────
+  const botGeo = buildSurface(splitSt, 'below');
+  add(new THREE.Mesh(botGeo, M.bottom), 'bottom');
+
+  // Transom bottom
+  const tBot = buildTransom(splitSt[splitSt.length - 1], 'below');
+  if (tBot) add(new THREE.Mesh(tBot, M.bottom), 'bottom');
+
+  // Keel strip
+  const keelMesh = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.10, 0.06), M.bottom);
+  keelMesh.position.set(-0.1, -0.88, 0);
+  add(keelMesh, 'bottom');
 
   // Waterline stripe (gold)
-  const waterStripe = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.915, 0.915, 7.4, 18, 1),
-    matGold
+  const wlStripeGeo = buildSurface(
+    splitSt.map(st => ({
+      x: st.x,
+      stripe: resample(st.above.slice(0, 2), 2)
+    })).map(s => ({...s, above: resample([{y:0,z:s.stripe[0].z},{y:0.06,z:s.stripe[0].z}], 2)})),
+    'above'
   );
-  waterStripe.rotation.z = Math.PI / 2;
-  waterStripe.position.set(-0.1, 0.04, 0);
-  waterStripe.scale.z = 0.65;
-  addPart(waterStripe, 'bottom');
+  const wlStripe = new THREE.Mesh(wlStripeGeo, M.gold);
+  add(wlStripe, 'bottom');
 
-  // ── HULL UPPER — UDVENDIG ──────────────────────────────────────────────
-  // Main hull body above waterline
-  const hullMain = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.9, 0.9, 7.2, 18, 1),
-    matHull
-  );
-  hullMain.rotation.z = Math.PI / 2;
-  hullMain.position.set(-0.1, 0.3, 0);
-  hullMain.scale.z = 0.64;
-  addPart(hullMain, 'hull');
+  // ── HULL TOPSIDES (udvendig) ──────────────────────────────────────────
+  const topGeo = buildSurface(splitSt, 'above');
+  add(new THREE.Mesh(topGeo, M.hull), 'hull');
 
-  // Bow piece (nose)
-  const bowCone = new THREE.Mesh(
-    new THREE.ConeGeometry(0.9, 1.8, 18),
-    matHull
-  );
-  bowCone.rotation.z = -Math.PI / 2;
-  bowCone.position.set(4.2, 0.3, 0);
-  bowCone.scale.z = 0.64;
-  addPart(bowCone, 'hull');
+  const tTop = buildTransom(splitSt[splitSt.length - 1], 'above');
+  if (tTop) add(new THREE.Mesh(tTop, M.hull), 'hull');
 
-  // Stern transom (flat back wall)
-  const transom = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.88, 0.88, 0.12, 18),
-    matHull
-  );
-  transom.rotation.z = Math.PI / 2;
-  transom.position.set(-3.68, 0.3, 0);
-  transom.scale.z = 0.64;
-  addPart(transom, 'hull');
+  // Rubrails
+  [0.58, -0.58].forEach(side => {
+    const rr = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 8.0, 8), M.rubber);
+    rr.rotation.z = Math.PI / 2; rr.position.set(-0.1, 0.16, side * 1.9);
+    add(rr, 'hull');
+  });
 
-  // Rubrail (bumper strip along hull side)
-  const railGeo = new THREE.CylinderGeometry(0.035, 0.035, 7.3, 8);
-  const railL = new THREE.Mesh(railGeo, matRubber);
-  railL.rotation.z = Math.PI / 2;
-  railL.position.set(-0.1, 0.72, 0.565);
-  addPart(railL, 'hull');
-  const railR = new THREE.Mesh(railGeo, matRubber);
-  railR.rotation.z = Math.PI / 2;
-  railR.position.set(-0.1, 0.72, -0.565);
-  addPart(railR, 'hull');
+  // ── DECK (polering) ───────────────────────────────────────────────────
+  const deckGeo = buildDeckGeo();
+  const deckMesh = new THREE.Mesh(deckGeo, M.deck);
+  deckMesh.position.y = 0.50;
+  add(deckMesh, 'deck');
 
-  // Chrome hardware on bow
-  const bowCleat = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8),
-    matChrome
-  );
-  bowCleat.position.set(4.8, 0.9, 0);
-  addPart(bowCleat, 'hull');
+  // Deck cap rail (thin white strip around edge)
+  const capGeo = buildDeckGeo();
+  capGeo.applyMatrix4(new THREE.Matrix4().makeScale(1.015, 1, 1.015));
+  const capMesh = new THREE.Mesh(capGeo, M.hull);
+  capMesh.position.y = 0.44;
+  add(capMesh, 'deck');
 
-  // ── DECK — POLERING ────────────────────────────────────────────────────
-  // Main deck surface
-  const deckMain = new THREE.Mesh(
-    new THREE.BoxGeometry(7.0, 0.10, 1.52),
-    matDeck
-  );
-  deckMain.position.set(-0.2, 0.88, 0);
-  addPart(deckMain, 'deck');
+  // Foredeck teak inlay
+  const foreDeckShape = new THREE.Shape();
+  foreDeckShape.moveTo(4.3,0); foreDeckShape.lineTo(1.1,.82); foreDeckShape.lineTo(1.1,-.82); foreDeckShape.closePath();
+  const fdGeo = new THREE.ShapeGeometry(foreDeckShape);
+  fdGeo.applyMatrix4(new THREE.Matrix4().makeRotationX(-Math.PI/2));
+  const foreDeckMesh = new THREE.Mesh(fdGeo, M.deckL);
+  foreDeckMesh.position.y = 0.51;
+  add(foreDeckMesh, 'deck');
 
-  // Deck perimeter (white cap rail)
-  const capRailGeo = new THREE.BoxGeometry(7.1, 0.06, 1.62);
-  const capRail = new THREE.Mesh(capRailGeo, matHull);
-  capRail.position.set(-0.2, 0.82, 0);
-  addPart(capRail, 'deck');
+  // Anchor roller (bow)
+  const ar = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.28,8), M.chrome);
+  ar.rotation.z = Math.PI/2; ar.position.set(4.5,0.62,0);
+  add(ar, 'deck');
 
-  // Bow deck (foredeck) teak inlay
-  const foreDeck = new THREE.Mesh(
-    new THREE.BoxGeometry(1.9, 0.11, 1.3),
-    matDeckLight
-  );
-  foreDeck.position.set(3.0, 0.88, 0);
-  addPart(foreDeck, 'deck');
+  // Stanchions + lifeline wire
+  for (let x = -2.5; x <= 2.5; x += 1.2) {
+    [1.05, -1.05].forEach(z => {
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.018,0.018,0.38,6), M.chrome);
+      st.position.set(x, 0.69, z); add(st, 'deck');
+    });
+  }
+  [1.05,-1.05].forEach(z => {
+    const lr = new THREE.Mesh(new THREE.CylinderGeometry(0.011,0.011,6.5,6), M.chrome);
+    lr.rotation.z = Math.PI/2; lr.position.set(-0.3, 0.86, z); add(lr, 'deck');
+  });
 
-  // Deck cleats (6 of them)
-  const cleatGeo = new THREE.BoxGeometry(0.22, 0.07, 0.1);
-  [-2.5, -1.2, 0.1, 1.4].forEach(x => {
-    [0.73, -0.73].forEach(z => {
-      const c = new THREE.Mesh(cleatGeo, matChrome);
-      c.position.set(x, 0.95, z);
-      addPart(c, 'deck');
+  // Cleats
+  [-2, -0.5, 1.0, 2.5].forEach(x => {
+    [0.85,-0.85].forEach(z => {
+      const cl = new THREE.Mesh(new THREE.BoxGeometry(0.20,0.06,0.09), M.chrome);
+      cl.position.set(x, 0.56, z); add(cl, 'deck');
     });
   });
 
-  // Handrail stanchions
-  for (let i = -2; i <= 1; i++) {
-    const stanchion = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.018, 0.018, 0.35, 6),
-      matChrome
-    );
-    stanchion.position.set(i * 1.3 + 0.2, 1.1, 0.73);
-    addPart(stanchion, 'deck');
-    const s2 = stanchion.clone();
-    s2.position.z = -0.73;
-    addPart(s2, 'deck');
-  }
-  // Handrail wire
-  const hrL = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.012, 0.012, 5.3, 6),
-    matChrome
-  );
-  hrL.rotation.z = Math.PI / 2;
-  hrL.position.set(-1.0, 1.27, 0.73);
-  addPart(hrL, 'deck');
-  const hrR = hrL.clone();
-  hrR.position.z = -0.73;
-  addPart(hrR, 'deck');
+  // ── CABIN / COCKPIT (indvendig) ────────────────────────────────────────
+  // Forward cabin housing (cuddy / v-berth hatch)
+  const cuddy = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.55, 1.70), M.hull);
+  cuddy.position.set(2.2, 0.82, 0); add(cuddy, 'cabin');
 
-  // ── CABIN / COCKPIT — INDVENDIG ────────────────────────────────────────
-  // Main cabin body
-  const cabinBody = new THREE.Mesh(
-    new THREE.BoxGeometry(2.6, 0.95, 1.38),
-    matCabin
-  );
-  cabinBody.position.set(-0.3, 1.43, 0);
-  addPart(cabinBody, 'cabin');
+  // Cabin top (hardtop)
+  const hardtop = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.09, 2.10), M.hull);
+  hardtop.position.set(-0.2, 1.84, 0); add(hardtop, 'cabin');
 
-  // Cabin roof (slightly overhang)
-  const cabinRoof = new THREE.Mesh(
-    new THREE.BoxGeometry(2.75, 0.09, 1.52),
-    matHull
-  );
-  cabinRoof.position.set(-0.3, 1.96, 0);
-  addPart(cabinRoof, 'cabin');
-
-  // Windshield (front glass)
-  const wsFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(0.07, 0.72, 1.25),
-    matCabin
-  );
-  wsFrame.position.set(0.96, 1.55, 0);
-  wsFrame.rotation.z = -0.22;
-  addPart(wsFrame, 'cabin');
-
-  const wsGlass = new THREE.Mesh(
-    new THREE.BoxGeometry(0.03, 0.62, 1.15),
-    matGlass
-  );
-  wsGlass.position.set(0.97, 1.55, 0);
-  wsGlass.rotation.z = -0.22;
-  addPart(wsGlass, 'cabin');
-
-  // Cabin side windows
-  [-0.68, 0.68].forEach(z => {
-    const sideWin = new THREE.Mesh(
-      new THREE.BoxGeometry(1.1, 0.32, 0.03),
-      matGlass
-    );
-    sideWin.position.set(-0.3, 1.55, z);
-    addPart(sideWin, 'cabin');
-
-    // Window frame
-    const sideFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(1.2, 0.38, 0.04),
-      matCabin
-    );
-    sideFrame.position.set(-0.3, 1.55, z - (z > 0 ? 0.01 : -0.01));
-    addPart(sideFrame, 'cabin');
+  // Cabin sides
+  [-1.04, 1.04].forEach(z => {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.18, 0.07), M.cabin);
+    side.position.set(-0.2, 1.24, z); add(side, 'cabin');
+    // Side window
+    const win = new THREE.Mesh(new THREE.BoxGeometry(1.60, 0.55, 0.04), M.glass);
+    win.position.set(-0.2, 1.32, z); add(win, 'cabin');
   });
 
-  // Cockpit (open area behind cabin)
-  const cockpit = new THREE.Mesh(
-    new THREE.BoxGeometry(1.9, 0.72, 1.38),
-    matCockpit
-  );
-  cockpit.position.set(-1.9, 1.33, 0);
-  addPart(cockpit, 'cabin');
+  // Cabin front & back
+  const cabFront = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.30, 2.15), M.cabin);
+  cabFront.position.set(1.22, 1.20, 0); add(cabFront, 'cabin');
 
-  // Cockpit side walls
-  [-0.69, 0.69].forEach(z => {
-    const wall = new THREE.Mesh(
-      new THREE.BoxGeometry(1.9, 0.72, 0.08),
-      matCabin
-    );
-    wall.position.set(-1.9, 1.33, z);
-    addPart(wall, 'cabin');
-  });
+  // Windshield glass
+  const ws = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.82, 1.88), M.glass);
+  ws.position.set(1.23, 1.22, 0); ws.rotation.z = -0.18; add(ws, 'cabin');
 
-  // Steering console
-  const console3d = new THREE.Mesh(
-    new THREE.BoxGeometry(0.35, 0.55, 0.7),
-    matCabin
-  );
-  console3d.position.set(-1.25, 1.52, 0);
-  addPart(console3d, 'cabin');
+  // Helm console
+  const cons = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.62, 0.75), M.cabin);
+  cons.position.set(-0.55, 1.15, 0); add(cons, 'cabin');
 
   // Steering wheel
-  const wheelRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.19, 0.022, 8, 28),
-    matChrome
-  );
-  wheelRing.rotation.x = 1.1;
-  wheelRing.position.set(-1.25, 1.83, 0.0);
-  addPart(wheelRing, 'cabin');
+  const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.20, 0.022, 8, 28), M.chrome);
+  wheel.rotation.x = 1.0; wheel.position.set(-0.55, 1.62, 0.0); add(wheel, 'cabin');
 
-  const wheelHub = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.045, 0.045, 0.04, 8),
-    matChrome
-  );
-  wheelHub.rotation.x = 1.1;
-  wheelHub.position.copy(wheelRing.position);
-  addPart(wheelHub, 'cabin');
+  // Cockpit
+  const cpit = new THREE.Mesh(new THREE.BoxGeometry(2.10, 0.70, 2.05), M.dark);
+  cpit.position.set(-2.20, 1.18, 0); add(cpit, 'cabin');
 
-  // Dual outboard engines
-  [-0.38, 0.38].forEach(z => {
-    const engBlock = new THREE.Mesh(
-      new THREE.BoxGeometry(0.32, 0.8, 0.38),
-      new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 0.25, metalness: 0.8 })
-    );
-    engBlock.position.set(-3.62, 0.22, z);
-    addPart(engBlock, 'cabin');
+  // Swim platform
+  const swim = new THREE.Mesh(new THREE.BoxGeometry(0.80, 0.08, 2.10), M.deck);
+  swim.position.set(-4.10, 0.25, 0); add(swim, 'cabin');
 
-    const engLeg = new THREE.Mesh(
-      new THREE.BoxGeometry(0.14, 0.45, 0.18),
-      new THREE.MeshStandardMaterial({ color: 0x666666, roughness: 0.3, metalness: 0.7 })
-    );
-    engLeg.position.set(-3.62, -0.22, z);
-    addPart(engLeg, 'cabin');
-
-    const prop = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.22, 0.22, 0.06, 3),
-      matChrome
-    );
-    prop.position.set(-3.62, -0.5, z);
-    addPart(prop, 'cabin');
+  // Dual outboards
+  [0.40, -0.40].forEach(z => {
+    const eng = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.82, 0.36), M.chrome);
+    eng.position.set(-4.0, 0.12, z); add(eng, 'cabin');
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.44, 0.16), M.chrome);
+    leg.position.set(-4.0,-0.28, z); add(leg, 'cabin');
+    const prop = new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.20,0.06,3), M.chrome);
+    prop.position.set(-4.0,-0.52, z); add(prop, 'cabin');
   });
 
-  // Navigation light (bow)
-  const navLight = new THREE.Mesh(
-    new THREE.SphereGeometry(0.05, 8, 8),
-    new THREE.MeshStandardMaterial({ color: 0xff4422, emissive: 0xff2200, emissiveIntensity: 1.5 })
-  );
-  navLight.position.set(4.9, 0.88, 0.3);
-  addPart(navLight, 'cabin');
+  // Nav lights
+  const mkLight = (col, x, z) => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.04,8,8),
+      new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:2}));
+    m.position.set(x,0.62,z); add(m,'cabin');
+  };
+  mkLight(0xff2200, 4.52, 0.18);
+  mkLight(0x00ee44, 4.52,-0.18);
+  mkLight(0xffffff,-3.60, 0);
 
-  const navLightG = new THREE.Mesh(
-    new THREE.SphereGeometry(0.05, 8, 8),
-    new THREE.MeshStandardMaterial({ color: 0x22ff44, emissive: 0x00ff22, emissiveIntensity: 1.5 })
-  );
-  navLightG.position.set(4.9, 0.88, -0.3);
-  addPart(navLightG, 'cabin');
-
-  // ── WATER SURFACE ──────────────────────────────────────────────────────
-  const waterGeo = new THREE.PlaneGeometry(80, 80, 100, 100);
+  // ── WATER ─────────────────────────────────────────────────────────────
+  const waterGeo = new THREE.PlaneGeometry(90, 90, 120, 120);
   const waterMat = new THREE.MeshPhysicalMaterial({
-    color: 0x07213d,
-    metalness: 0.85,
-    roughness: 0.04,
-    transparent: true,
-    opacity: 0.88,
-    reflectivity: 0.9
+    color:0x061e38, metalness:0.88, roughness:0.04, transparent:true, opacity:0.90
   });
   const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-  waterMesh.rotation.x = -Math.PI / 2;
-  waterMesh.position.y = 0.03;
-  waterMesh.receiveShadow = true;
-  scene.add(waterMesh);
-
-  // Horizon glow
-  const horizonGeo = new THREE.PlaneGeometry(80, 12);
-  const horizonMat = new THREE.MeshBasicMaterial({
-    color: 0x0a2040,
-    transparent: true,
-    opacity: 0.5,
-    side: THREE.DoubleSide
-  });
-  const horizon = new THREE.Mesh(horizonGeo, horizonMat);
-  horizon.rotation.y = 0.3;
-  horizon.position.set(0, 4, -25);
-  scene.add(horizon);
+  waterMesh.rotation.x = -Math.PI/2; waterMesh.position.y = 0.01;
+  waterMesh.receiveShadow = true; scene.add(waterMesh);
 
   // Stars
-  const starPositions = [];
-  for (let i = 0; i < 500; i++) {
-    starPositions.push(
-      (Math.random() - 0.5) * 100,
-      Math.random() * 25 + 8,
-      (Math.random() - 0.5) * 100
-    );
-  }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.06 })));
+  const sp = [];
+  for (let i=0;i<600;i++) sp.push((Math.random()-.5)*120, Math.random()*30+10, (Math.random()-.5)*120);
+  const sg = new THREE.BufferGeometry();
+  sg.setAttribute('position', new THREE.Float32BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:.055})));
 
-  // ── HIDE LOADING ───────────────────────────────────────────────────────
-  const loadingEl = document.getElementById('boat-loading');
-  if (loadingEl) loadingEl.style.display = 'none';
+  // Hide loading indicator
+  const loadEl = document.getElementById('boat-loading');
+  if (loadEl) loadEl.style.display = 'none';
 
-  // ── STATE ──────────────────────────────────────────────────────────────
-  let explodeProgress = 0;
-  let targetExplode = 0;
-  let hoveredKey = null;
-  let activeKey = null;
-  let autoRotate = true;
-  let rotY = 0.35;
-  let userRotating = false;
-
+  // ── STATE ─────────────────────────────────────────────────────────────
+  let explode=0, targetExplode=0, hoveredKey=null, activeKey=null;
+  let rotY=0.35, autoRotate=true;
+  const EXPLODE = {bottom:-2.4, hull:0, deck:2.1, cabin:4.3};
   const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2(-10, -10);
-  const clock = new THREE.Clock();
+  const mouse = new THREE.Vector2(-10,-10);
+  const clock  = new THREE.Clock();
 
-  // Explosion Y offsets per section
-  const EXPLODE = { bottom: -2.2, hull: 0, deck: 2.0, cabin: 4.0 };
-
-  // ── SCROLL TRIGGER ────────────────────────────────────────────────────
-  const section3d = document.querySelector('.boat-3d-section');
+  // Scroll explode
+  const sec3d = document.querySelector('.boat-3d-section');
   window.addEventListener('scroll', () => {
-    if (!section3d) return;
-    const rect = section3d.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const p = (vh - rect.top) / (vh + rect.height);
-    targetExplode = Math.max(0, Math.min(1, (p - 0.2) / 0.55));
-  }, { passive: true });
+    if (!sec3d) return;
+    const r = sec3d.getBoundingClientRect();
+    const p = (window.innerHeight - r.top) / (window.innerHeight + r.height);
+    targetExplode = Math.max(0, Math.min(1, (p - 0.18) / 0.58));
+  }, {passive:true});
 
-  // ── MOUSE INTERACTION ──────────────────────────────────────────────────
+  // Mouse interaction
   renderer.domElement.addEventListener('mousemove', e => {
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    const r = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-r.left)/r.width)*2-1;
+    mouse.y = -((e.clientY-r.top)/r.height)*2+1;
   });
-
   renderer.domElement.addEventListener('click', () => {
-    if (hoveredKey) {
-      activeKey = (activeKey === hoveredKey) ? null : hoveredKey;
-      updateInfoPanel();
-    }
+    if (hoveredKey) { activeKey = activeKey===hoveredKey ? null : hoveredKey; updatePanel(); }
   });
 
-  // Drag to rotate
-  let dragStart = null;
-  let rotYAtDrag = 0;
-  renderer.domElement.addEventListener('mousedown', e => {
-    dragStart = e.clientX;
-    rotYAtDrag = rotY;
-    autoRotate = false;
-  });
-  window.addEventListener('mouseup', () => {
-    dragStart = null;
-    setTimeout(() => { autoRotate = true; }, 5000);
-  });
-  window.addEventListener('mousemove', e => {
-    if (dragStart !== null) {
-      rotY = rotYAtDrag + (e.clientX - dragStart) * 0.008;
-    }
-  });
+  // Drag rotate
+  let dragX=null, rotY0=0;
+  renderer.domElement.addEventListener('mousedown', e => { dragX=e.clientX; rotY0=rotY; autoRotate=false; });
+  window.addEventListener('mouseup', () => { dragX=null; setTimeout(()=>{autoRotate=true;},5000); });
+  window.addEventListener('mousemove', e => { if(dragX!==null) rotY=rotY0+(e.clientX-dragX)*0.007; });
+
+  // Touch rotate (mobile)
+  let touchX=null;
+  renderer.domElement.addEventListener('touchstart', e => { touchX=e.touches[0].clientX; rotY0=rotY; autoRotate=false; });
+  renderer.domElement.addEventListener('touchmove', e => { if(touchX!==null) rotY=rotY0+(e.touches[0].clientX-touchX)*0.007; });
+  renderer.domElement.addEventListener('touchend', () => { touchX=null; setTimeout(()=>{autoRotate=true;},5000); });
 
   // ── INFO PANEL ────────────────────────────────────────────────────────
-  const infoPanel = document.getElementById('boat-info-panel');
-  function updateInfoPanel() {
-    if (!infoPanel) return;
+  const panel = document.getElementById('boat-info-panel');
+  function updatePanel() {
+    if (!panel) return;
     if (activeKey && SECTIONS[activeKey]) {
       const s = SECTIONS[activeKey];
       document.getElementById('bip-label').textContent = s.label;
       document.getElementById('bip-price').textContent = s.price;
-      document.getElementById('bip-desc').textContent = s.desc;
-      infoPanel.classList.add('active');
-    } else {
-      infoPanel.classList.remove('active');
-    }
+      document.getElementById('bip-desc').textContent  = s.desc;
+      panel.classList.add('active');
+    } else panel.classList.remove('active');
   }
   const closeBtn = document.getElementById('bip-close');
-  if (closeBtn) closeBtn.addEventListener('click', () => { activeKey = null; updateInfoPanel(); });
+  if (closeBtn) closeBtn.addEventListener('click', () => { activeKey=null; updatePanel(); });
 
-  // ── LABEL OVERLAY ─────────────────────────────────────────────────────
-  // Label anchor points in 3D (shown when exploded)
+  // ── LABELS ────────────────────────────────────────────────────────────
   const labelAnchors = {
-    bottom: new THREE.Vector3(0, -1.8, 1.5),
-    hull:   new THREE.Vector3(2, 0.3, 1.5),
-    deck:   new THREE.Vector3(1, 2.3, 1.5),
-    cabin:  new THREE.Vector3(-1, 4.2, 1.5)
+    bottom: new THREE.Vector3(-0.5,-1.5, 2.0),
+    hull:   new THREE.Vector3( 2.5, 0.3, 2.0),
+    deck:   new THREE.Vector3( 1.0, 2.0, 1.8),
+    cabin:  new THREE.Vector3(-0.5, 4.0, 1.8),
   };
-  const labelEls = {};
-  const labelsContainer = document.getElementById('boat-labels');
-  if (labelsContainer) {
-    Object.entries(SECTIONS).forEach(([key, data]) => {
-      const el = document.createElement('div');
-      el.className = 'boat-label';
-      el.textContent = data.label;
-      el.dataset.key = key;
-      el.addEventListener('click', () => {
-        activeKey = (activeKey === key) ? null : key;
-        updateInfoPanel();
-      });
-      labelsContainer.appendChild(el);
-      labelEls[key] = el;
+  const labelEls={}, labCont=document.getElementById('boat-labels');
+  if (labCont) {
+    Object.entries(SECTIONS).forEach(([key,data])=>{
+      const el=document.createElement('div');
+      el.className='boat-label'; el.textContent=data.label; el.dataset.key=key;
+      el.addEventListener('click',()=>{ activeKey=activeKey===key?null:key; updatePanel(); });
+      labCont.appendChild(el); labelEls[key]=el;
     });
   }
 
   function updateLabels() {
-    if (!labelsContainer) return;
-    const show = explodeProgress > 0.35;
-    labelsContainer.style.opacity = show ? Math.min(1, (explodeProgress - 0.35) / 0.2) : 0;
-
-    Object.entries(labelAnchors).forEach(([key, pos3d]) => {
-      const el = labelEls[key];
-      if (!el) return;
-      // Project 3D point to screen
-      const worldPos = pos3d.clone();
-      worldPos.y += (EXPLODE[key] || 0) * explodeProgress;
-      // Rotate by boat group Y
-      worldPos.applyEuler(new THREE.Euler(0, rotY, 0));
-      const screenPos = worldPos.clone().project(camera);
-      const rect = renderer.domElement.getBoundingClientRect();
-      const x = (screenPos.x * 0.5 + 0.5) * rect.width;
-      const y = (-screenPos.y * 0.5 + 0.5) * rect.height;
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
-      el.classList.toggle('active', key === hoveredKey || key === activeKey);
+    if (!labCont) return;
+    const show = explode > 0.3;
+    labCont.style.opacity = show ? Math.min(1,(explode-0.3)/0.2) : 0;
+    const rect = renderer.domElement.getBoundingClientRect();
+    Object.entries(labelAnchors).forEach(([key,anchor])=>{
+      const el=labelEls[key]; if(!el) return;
+      const wp = anchor.clone();
+      wp.y += (EXPLODE[key]||0)*explode;
+      wp.applyEuler(new THREE.Euler(0,rotY,0));
+      const sp = wp.project(camera);
+      el.style.left = ((sp.x*.5+.5)*rect.width)+'px';
+      el.style.top  = ((-sp.y*.5+.5)*rect.height)+'px';
+      el.classList.toggle('active', key===hoveredKey||key===activeKey);
     });
   }
 
@@ -569,72 +465,60 @@
   function animate() {
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.05);
-    const t = clock.getElapsedTime();
+    const t  = clock.getElapsedTime();
 
-    explodeProgress += (targetExplode - explodeProgress) * 0.045;
-    if (autoRotate) rotY += dt * 0.14;
+    explode += (targetExplode - explode) * 0.045;
+    if (autoRotate) rotY += dt * 0.13;
     boatGroup.rotation.y = rotY;
+    boatGroup.position.y = Math.sin(t * 0.45) * 0.07;
+    boatGroup.rotation.z = Math.sin(t * 0.38) * 0.011;
 
-    // Gentle bob
-    boatGroup.position.y = Math.sin(t * 0.5) * 0.06;
-    boatGroup.rotation.z = Math.sin(t * 0.4) * 0.012;
-
-    // Apply explosion
-    meshKeys.forEach((key, mesh) => {
-      const orig = originalPos.get(mesh);
+    // Explode sections
+    meshKeys.forEach((key,mesh)=>{
+      const orig = origPos.get(mesh);
       if (!orig) return;
-      const offsetY = (EXPLODE[key] || 0) * explodeProgress;
-      const targetY = orig.y + offsetY;
-      mesh.position.y += (targetY - mesh.position.y) * 0.08;
+      const ty = orig.y + (EXPLODE[key]||0) * explode;
+      mesh.position.y += (ty - mesh.position.y) * 0.08;
     });
 
     // Raycast hover
     raycaster.setFromCamera(mouse, camera);
-    const meshList = [];
-    meshKeys.forEach((k, m) => meshList.push(m));
+    const meshList=[];
+    meshKeys.forEach((_,m)=>meshList.push(m));
     const hits = raycaster.intersectObjects(meshList, false);
-    const newHover = hits.length > 0 && meshKeys.has(hits[0].object)
-      ? meshKeys.get(hits[0].object) : null;
-
-    if (newHover !== hoveredKey) {
-      hoveredKey = newHover;
+    const newH = hits.length>0 && meshKeys.has(hits[0].object) ? meshKeys.get(hits[0].object) : null;
+    if (newH!==hoveredKey) {
+      hoveredKey=newH;
       renderer.domElement.style.cursor = hoveredKey ? 'pointer' : 'default';
     }
 
     // Emissive highlight
-    meshKeys.forEach((key, mesh) => {
-      if (!mesh.material || !mesh.material.emissive) return;
-      const isActive = key === hoveredKey || key === activeKey;
-      const target = isActive
-        ? new THREE.Color(0xC9A84C).multiplyScalar(0.35)
-        : new THREE.Color(0x000000);
-      mesh.material.emissive.lerp(target, 0.12);
+    meshKeys.forEach((key,mesh)=>{
+      if (!mesh.material?.emissive) return;
+      const on = key===hoveredKey||key===activeKey;
+      mesh.material.emissive.lerp(
+        on ? new THREE.Color(0xC9A84C).multiplyScalar(0.32) : new THREE.Color(0),
+        0.12
+      );
     });
 
     // Animate water
-    const wPos = waterGeo.attributes.position;
-    for (let i = 0; i < wPos.count; i++) {
-      const x = wPos.getX(i), z = wPos.getZ(i);
-      wPos.setY(i,
-        Math.sin(x * 0.35 + t * 0.9) * 0.14 +
-        Math.cos(z * 0.28 + t * 0.65) * 0.10 +
-        Math.sin((x + z) * 0.15 + t * 1.1) * 0.06
-      );
+    const wpos = waterGeo.attributes.position;
+    for (let i=0;i<wpos.count;i++){
+      const x=wpos.getX(i), z=wpos.getZ(i);
+      wpos.setY(i, Math.sin(x*.32+t*.85)*.15 + Math.cos(z*.26+t*.62)*.11 + Math.sin((x+z)*.13+t*1.1)*.06);
     }
-    wPos.needsUpdate = true;
+    wpos.needsUpdate=true;
 
     updateLabels();
     renderer.render(scene, camera);
   }
-
   animate();
 
   // ── RESIZE ────────────────────────────────────────────────────────────
-  window.addEventListener('resize', () => {
-    const w = container.clientWidth, h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+  window.addEventListener('resize', ()=>{
+    const w=container.clientWidth, h=container.clientHeight;
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
   });
-
 })();
