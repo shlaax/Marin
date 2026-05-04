@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone *)",
+      "Read(//c/Users/hamse/.claude/**)",
+      "Bash(mkdir -p \"C:/Users/hamse/.claude/commands\")",
+      "Bash(cp /tmp/claude-skills/commands/*.md \"C:/Users/hamse/.claude/commands/\")",
+      "Bash(grep -v \"^README$\\\\|^TEMPLATE$\")",
+      "Bash(unzip -l /tmp/claude-skills/engineering-team/senior-architect.zip)",
+      "Bash(xargs grep *)",
+      "Bash(python3)",
+      "Bash(py -3 --version)",
+      "Bash(python3.exe --version)",
+      "Bash(python3.exe \"C:/Users/hamse/AppData/Local/Temp/install_skills.py\")",
+      "Bash(cygpath -w /tmp/claude-skills)",
+      "WebSearch"
+    ]
+  }
+}
